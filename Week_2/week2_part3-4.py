@@ -91,6 +91,8 @@ plt.subplot(234), plt.imshow(cv2.cvtColor(harris_scaled_down_image, cv2.COLOR_BG
 plt.subplot(235), plt.imshow(cv2.cvtColor(harris_affine_image, cv2.COLOR_BGR2RGB)), plt.title('Harris - Affine Image'), plt.axis('off')
 plt.subplot(236), plt.imshow(cv2.cvtColor(harris_perspective_image, cv2.COLOR_BGR2RGB)), plt.title('Harris - Perspective Image'), plt.axis('off')
 
+plt.tight_layout()
+
 # SIFT (Scale-Invariant Feature Transform)
 def sift_features(image):
     gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)

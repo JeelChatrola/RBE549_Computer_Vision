@@ -3,6 +3,7 @@ import datetime
 import numpy as np
 import sys
 import os
+import feature_match as fm # Import the feature_match.py file
 
 class VideoProcessor:
     def __init__(self, video_source):
@@ -17,10 +18,10 @@ class VideoProcessor:
             'rotate': False,
             'threshold': False,
             'blur': False,
-            'sharpen': False,
             'Sobel-X': False,
             'Sobel-Y': False,
-            'Canny': False
+            'Canny': False,
+            'Object-Detection': False
         }
 
         # Create a window
@@ -34,10 +35,6 @@ class VideoProcessor:
         cv2.createTrackbar('Sobel-Y', 'Camera', 0, 15, lambda x: None)
         cv2.createTrackbar('Canny-1', 'Camera', 1, 5000, lambda x: None)
         cv2.createTrackbar('Canny-2', 'Camera', 1, 5000, lambda x: None)
-
-        # Load the OpenCV logo
-        self.logo_1 = cv2.imread('OpenCV_Logo.png')
-        self.logo = cv2.resize(self.logo_1, (150, 150))
 
         self.key = -1
 
@@ -53,7 +50,7 @@ class VideoProcessor:
         sys.stdout.write("  'r' to rotate the image\n")
         sys.stdout.write("  't' to threshold the image\n")
         sys.stdout.write("  'b' to blur the image\n")
-        sys.stdout.write("  's' to sharpen the image\n")
+        sys.stdout.write("  'o' to perform object detection\n")
         sys.stdout.write("  's+x' to SobelX the image\n")
         sys.stdout.write("  's+y' to SobelY the image\n")
         sys.stdout.write("  'd' to Canny Edge the image\n")
@@ -125,29 +122,6 @@ class VideoProcessor:
         # Added a red border to the frame
         frame = cv2.copyMakeBorder(frame,5,5,5,5,cv2.BORDER_CONSTANT,value=[0,0,255])
 
-        ######### Logo-Blend #################################
-        # Blend the logo into the top-left corner of the frame
-        roi = frame[0:self.logo.shape[0], 0:self.logo.shape[1]]
-        blended = cv2.addWeighted(roi, 0.7, self.logo, 0.3, 0)
-        frame[0:self.logo.shape[0], 0:self.logo.shape[1]] = blended
-
-        ######### Time-Stamp #################################
-        # Add a timestamp to the bottom right corner of the frame
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        # Get the size of the textbox
-        text_width, text_height = cv2.getTextSize(timestamp, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 1)[0]
-        # Put timestamp on the frame bottom right corner
-        cv2.putText(frame, timestamp, (frame.shape[1] - text_width - 10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
-
-        ######### Top right-ROI ##############################
-        margin = 5  # Increase this value to increase the size of the ROI
-        # Get the bottom left corner of the timestamp
-        bottom_left_corner = (frame.shape[1] - text_width - 10, frame.shape[0] - 10)
-        # Select the timestamp as a ROI
-        roi = frame[bottom_left_corner[1] - text_height - margin:bottom_left_corner[1] + margin, bottom_left_corner[0] - margin:bottom_left_corner[0] + text_width + margin]
-        # Copy the ROI to the top right corner
-        frame[10:10 + text_height + 2*margin, frame.shape[1] - text_width - 10 - 2*margin:frame.shape[1] - 10] = roi
-
         ######### Processing ################################        
         # Convert to elif for stopping combination which creates more complicated features
         if self.features['extract_color']:
@@ -175,9 +149,6 @@ class VideoProcessor:
             Y = 2 * cv2.getTrackbarPos('Blur-SigmaY', 'Camera') + 1
             frame = cv2.GaussianBlur(frame, (X, Y), 0)
 
-        if self.features['sharpen']:
-            frame = cv2.bilateralFilter(frame,9,75,75)
-
         if self.features['Sobel-X']:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             kernel_size = cv2.getTrackbarPos('Sobel-X', 'Camera')
@@ -191,6 +162,12 @@ class VideoProcessor:
         if self.features['Canny']:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             frame = cv2.Canny(frame, cv2.getTrackbarPos('Canny-1', 'Camera'), cv2.getTrackbarPos('Canny-2', 'Camera'))
+
+        if self.features['Object-Detection']:
+            # Load the image
+            image = cv2.imread('image_2.png')            
+            # Call the sift_flann_match function from feature_match.py
+            frame = fm.sift_flann_match(frame, image)
 
         return frame
 
@@ -248,11 +225,7 @@ class VideoProcessor:
             # Blur Image
             elif self.key == ord('b'):
                 self.features['blur'] = not self.features['blur']   
-                
-            # Sharpen Image
-            # elif self.key == ord('s'):
-            #     self.features['sharpen'] = not self.features['sharpen']
-
+            
             # Sobel-X Image
             elif self.key == ord('x') and last_key == ord('s'):
                 self.features['Sobel-X'] = not self.features['Sobel-X'] 
@@ -265,13 +238,9 @@ class VideoProcessor:
             elif self.key == ord('d'):
                 self.features['Canny'] = not self.features['Canny']
 
-            # 4 in 
-            if self.key == ord('4'):
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                cv2.imshow('Original', frame)
-                cv2.imshow('Laplacian', self.custom_laplacian(frame))
-                cv2.imshow('Sobel X', self.custom_sobel_x(frame))
-                cv2.imshow('Sobel Y', self.custom_sobel_y(frame))
+            # Object Detection
+            elif self.key == ord('o'):
+                self.features['Object-Detection'] = not self.features['Object-Detection']   
 
             # Quit the program
             elif self.key == 27:  # ESC key
