@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-img1 = cv2.imread('image.png',cv2.IMREAD_GRAYSCALE) # queryImage
-img2 = cv2.imread('image_match.png',cv2.IMREAD_GRAYSCALE) # trainImage
+# img1 = cv2.imread('image.png',cv2.IMREAD_GRAYSCALE) # queryImage
+# img2 = cv2.imread('image_match.png',cv2.IMREAD_GRAYSCALE) # trainImage
 
 def sift_detector(img): 
     sift = cv2.SIFT_create()
@@ -134,6 +134,6 @@ def run_experiments():
     cv2.imwrite('sift_flann_match.png', res_sift_flann)
     cv2.imwrite('surf_flann_match.png', res_surf_flann)
 
-if __name__ == '__main__':
-    run_experiments()
+# if __name__ == '__main__':
+    # run_experiments()
 
