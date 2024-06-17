@@ -175,6 +175,7 @@ class VideoProcessor:
 
             # Capture Images one by one and save them
             if key == ord('a'):
+                print('Capturing Image')
                 cv2.imwrite('{0}.jpg'.format(self.pano_image,1), frame)
                 self.pano_image += 1
 

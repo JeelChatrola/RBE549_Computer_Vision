@@ -108,31 +108,31 @@ def surf_flann_match(img1, img2):
 
     return img3
 
-def run_experiments():
-    res_sift_bf = sift_bf_match(img1, img2)
-    res_sift_flann = sift_flann_match(img1, img2)
-    res_surf_bf = surf_bf_match(img1, img2)
-    res_surf_flann = surf_flann_match(img1, img2)
+# def run_experiments():
+#     res_sift_bf = sift_bf_match(img1, img2)
+#     res_sift_flann = sift_flann_match(img1, img2)
+#     res_surf_bf = surf_bf_match(img1, img2)
+#     res_surf_flann = surf_flann_match(img1, img2)
 
-    cv2.imshow('SIFT - BF Matcher', res_sift_bf)
-    cv2.moveWindow('SIFT - BF Matcher', 50, 50)
+#     cv2.imshow('SIFT - BF Matcher', res_sift_bf)
+#     cv2.moveWindow('SIFT - BF Matcher', 50, 50)
 
-    cv2.imshow('SURF - BF Matcher', res_surf_bf)
-    cv2.moveWindow('SURF - BF Matcher', 50, 550)
+#     cv2.imshow('SURF - BF Matcher', res_surf_bf)
+#     cv2.moveWindow('SURF - BF Matcher', 50, 550)
 
-    cv2.imshow('SIFT - FLANN Matcher', res_sift_flann)
-    cv2.moveWindow('SIFT - FLANN Matcher', 700, 50)
+#     cv2.imshow('SIFT - FLANN Matcher', res_sift_flann)
+#     cv2.moveWindow('SIFT - FLANN Matcher', 700, 50)
 
-    cv2.imshow('SURF - FLANN Matcher', res_surf_flann)
-    cv2.moveWindow('SURF - FLANN Matcher', 700, 550)
+#     cv2.imshow('SURF - FLANN Matcher', res_surf_flann)
+#     cv2.moveWindow('SURF - FLANN Matcher', 700, 550)
 
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
 
-    cv2.imwrite('sift_bf_match.png', res_sift_bf)
-    cv2.imwrite('surf_bf_match.png', res_surf_bf)
-    cv2.imwrite('sift_flann_match.png', res_sift_flann)
-    cv2.imwrite('surf_flann_match.png', res_surf_flann)
+#     cv2.imwrite('sift_bf_match.png', res_sift_bf)
+#     cv2.imwrite('surf_bf_match.png', res_surf_bf)
+#     cv2.imwrite('sift_flann_match.png', res_sift_flann)
+#     cv2.imwrite('surf_flann_match.png', res_surf_flann)
 
 # if __name__ == '__main__':
     # run_experiments()
