@@ -2,11 +2,8 @@ import cv2
 import numpy as np
 from scipy.linalg import svd
 import matplotlib.pyplot as plt
-import os 
-import glob
 import open3d as o3d
 
-# Part 2: Feature Extraction and Matching
 def extract_and_match_features(img1, img2):
     # Create SIFT object
     sift = cv2.SIFT_create()
@@ -29,12 +26,11 @@ def extract_and_match_features(img1, img2):
     # Apply ratio test
     good = []
     for m, n in matches:
-        if m.distance < 0.69 * n.distance:
+        if m.distance < 0.6 * n.distance:
             good.append(m)
     
     return kp1, kp2, good
 
-# Part 3: Fundamental Matrix Calculation
 def calculate_fundamental_matrix(kp1, kp2, matches):
     pts1 = np.float32([kp1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
     pts2 = np.float32([kp2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
@@ -49,7 +45,6 @@ def calculate_fundamental_matrix(kp1, kp2, matches):
 
     return F
 
-# Part 4: Essential Matrix Calculation
 def calculate_essential_matrix(F, K):
     E = np.dot(np.dot(K.T, F), K)
     
@@ -61,7 +56,6 @@ def calculate_essential_matrix(F, K):
     print(f"Determinant of E: {np.linalg.det(E)}")
     return E
 
-# Part 5: Decompose Essential Matrix
 def decompose_essential_matrix(E):
     U, _, Vt = np.linalg.svd(E)
     W = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
@@ -77,7 +71,6 @@ def decompose_essential_matrix(E):
     
     return R1, R2, t
 
-# Part 6: Create Projection Matrices
 def create_projection_matrices(K, R1, R2, t):
     P0 = np.dot(K, np.hstack((np.eye(3), np.zeros((3, 1)))))
     P1_1 = np.dot(K, np.hstack((R1, t.reshape(3, 1))))
@@ -87,7 +80,6 @@ def create_projection_matrices(K, R1, R2, t):
     
     return P0, [P1_1, P1_2, P1_3, P1_4]
 
-# Part 7: Triangulation
 def linear_ls_triangulation(u1, P1, u2, P2):
     A = np.zeros((4, 4))
     A[0] = u1[0] * P1[2] - P1[0]
@@ -99,7 +91,6 @@ def linear_ls_triangulation(u1, P1, u2, P2):
     X = Vt[-1]
     return X / X[3]
 
-# Updated Part 8: Reprojection Error
 def calculate_reprojection_error(points_3d, points_2d, P):
     points_3d_homogeneous = np.hstack((points_3d, np.ones((points_3d.shape[0], 1))))
     reprojected_points = np.dot(P, points_3d_homogeneous.T).T
@@ -107,7 +98,6 @@ def calculate_reprojection_error(points_3d, points_2d, P):
     error = np.mean(np.sqrt(np.sum((reprojected_points - points_2d)**2, axis=1)))
     return error
 
-# Part 9: Save PCD File
 def save_pcd_to_file(points_3d, colors, filename):
     with open(filename, 'w') as f:
         f.write("# .PCD v0.7 - Point Cloud Data file format\n")
@@ -127,7 +117,6 @@ def save_pcd_to_file(points_3d, colors, filename):
             f.write(f"{point[0]} {point[1]} {point[2]} {rgb}\n")
 
 def visualize_matches(img1, img2, kp1, kp2, matches, num_matches=100):
-    # Create a new output image that concatenates the two images
     rows1, cols1 = img1.shape[:2]
     rows2, cols2 = img2.shape[:2]
     out = np.zeros((max([rows1,rows2]), cols1+cols2, 3), dtype='uint8')
@@ -180,32 +169,18 @@ def visualize_pcd_with_open3d(pcd_file_path):
     o3d.visualization.draw_geometries([pcd])
 
 
-# Main execution
 if __name__ == "__main__":
-    # img1 = cv2.imread('image1.jpg')
-    # img2 = cv2.imread('image2.jpg')
-    # K = np.array([[4000, -8.5, width/2],
-            #  [0, 4000, height/2],
-            #  [0, 0, 1]])
-
-    img1 = cv2.imread('a.jpg')
-    img2 = cv2.imread('b.jpg')
-
-    # load K and dist from folder
-    K = np.load('camera_matrix.npy')
-    dist = np.load('camera_dist_coeff.npy')
+    img1 = cv2.imread('image1.jpg')
+    img2 = cv2.imread('image2.jpg')
     
     height, width = img1.shape[:2]
 
-    K = np.array([[3900, -9.5, width/2],
-                 [0, 3600, height/2],
-                 [0, 0, 1]])
+    K = np.array([[4000, -8.5, height/2],
+             [0, 4000, width/2],
+             [0, 0, 1]])
     
-    print("Camera matrix:")
-    print(K)
-    print("Distortion coefficients:")
-    print(dist)
-
+    dist = np.array([[[-0.04892434,  0.87624657, 0.00713911, -0.0059705,  -2.23593616]]])
+    
     # undistort images
     img1 = cv2.undistort(img1, K, dist)
     img2 = cv2.undistort(img2, K, dist)
@@ -243,7 +218,7 @@ if __name__ == "__main__":
             points_3d = points_3d_temp
             valid_P1 = P1
             break
-    
+
     if not points_3d:
         print("No valid reconstruction found. All points are behind at least one camera.")
         exit()
