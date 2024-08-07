@@ -114,12 +114,12 @@ def generate_and_save_images(model, epoch, test_input):
         plt.imshow(predictions[i, :, :, 0] * 127.5 + 127.5, cmap='gray')
         plt.axis('off')
 
-    plt.savefig(f'image_at_epoch_{epoch:04d}.png')
+    plt.savefig(f'results/fashion/image_at_epoch_{epoch:04d}.png')
     plt.show()
 
     # Save images using imageio
     images = [predictions[i, :, :, 0] * 127.5 + 127.5 for i in range(predictions.shape[0])]
-    imageio.mimsave(f'fashion_result_epoch_{epoch:04d}.gif', images)
+    imageio.mimsave(f'results/fashion/fashion_result_epoch_{epoch:04d}.gif', images)
 
 # Train the model
 train(train_dataset, EPOCHS)

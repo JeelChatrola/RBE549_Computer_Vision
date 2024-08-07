@@ -99,7 +99,7 @@ checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer,
                                  generator=generator,
                                  discriminator=discriminator)
 
-EPOCHS = 50
+EPOCHS = 20
 noise_dim = 100
 num_examples_to_generate = 16
 
@@ -165,7 +165,7 @@ def generate_and_save_images(model, epoch, test_input):
         plt.imshow(predictions[i, :, :, 0] * 127.5 + 127.5, cmap='gray')
         plt.axis('off')
 
-    plt.savefig('image_at_epoch_{:04d}.png'.format(epoch))
+    plt.savefig('results/mnist/image_at_epoch_{:04d}.png'.format(epoch))
     plt.show() 
 
 train(train_dataset, EPOCHS)
@@ -178,7 +178,7 @@ def display_image(epoch_no):
 
 display_image(EPOCHS)
 
-anim_file = 'dcgan.gif'
+anim_file = 'results/mnist/dcgan.gif'
 
 with imageio.get_writer(anim_file, mode='I') as writer:
     filenames = glob.glob('image*.png')
